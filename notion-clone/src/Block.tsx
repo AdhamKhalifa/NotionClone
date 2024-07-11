@@ -1,11 +1,13 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
 
-const Block: React.FC<{ block: any; onEdit: () => void }> = ({
-  block,
-  onEdit,
-}) => {
+const Block: React.FC<{
+  block: any;
+  onEdit: () => void;
+  onDelete: () => void;
+}> = ({ block, onEdit, onDelete }) => {
   return (
-    <div onClick={onEdit}>
+    <div>
       {block.type === "text" &&
         React.createElement(block.tag, {}, block.content)}
       {block.type === "image" && (
@@ -15,6 +17,11 @@ const Block: React.FC<{ block: any; onEdit: () => void }> = ({
           style={{ width: block.width, height: block.height }}
         />
       )}
+      {block.type === "markdown" && (
+        <ReactMarkdown>{block.content}</ReactMarkdown>
+      )}
+      <button onClick={onEdit}>Edit</button>
+      <button onClick={onDelete}>Delete</button>
     </div>
   );
 };
