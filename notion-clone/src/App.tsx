@@ -3,6 +3,8 @@ import axios from "axios";
 import Block from "./Block";
 import BlockEditor from "./BlockEditor";
 import MarkdownBlock from "./MarkdownBlock";
+import SummarizeButton from "./SummarizeButton"; // Import SummarizeButton
+import "./styles.css";
 
 const App: React.FC = () => {
   const [blocks, setBlocks] = useState<any[]>([]);
@@ -41,7 +43,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="app">
       <h1>Notion Clone</h1>
       {blocks.map((block) => {
         if (block.type === "text" || block.type === "image") {
@@ -70,6 +72,7 @@ const App: React.FC = () => {
       {editingBlock && (
         <BlockEditor block={editingBlock} onSave={updateBlock} />
       )}
+      <SummarizeButton /> {/* Add SummarizeButton component */}
     </div>
   );
 };

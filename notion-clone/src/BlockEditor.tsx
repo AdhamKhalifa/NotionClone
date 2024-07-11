@@ -11,10 +11,9 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
   const [src, setSrc] = useState(block?.src || "");
   const [width, setWidth] = useState(block?.width || "100px");
   const [height, setHeight] = useState(block?.height || "100px");
-  const [imageSource, setImageSource] = useState(
-    block?.src?.startsWith("/uploads/") ? "local" : "url"
-  );
+  const [imageSource, setImageSource] = useState("url");
   const [file, setFile] = useState<File | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (block) {
@@ -24,43 +23,25 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
       setSrc(block.src);
       setWidth(block.width);
       setHeight(block.height);
-      setImageSource(block.src?.startsWith("/uploads/") ? "local" : "url");
-    } else {
-      resetFields();
+      setImageSource(
+        block.src?.startsWith("http://localhost:5000/uploads/")
+          ? "local"
+          : "url"
+      );
     }
   }, [block]);
 
-  const saveBlock = () => {
-    const newBlock = {
-      id: block?.id || Date.now().toString(),
-      type,
-      content,
-      tag,
-      src,
-      width,
-      height,
-    };
-    console.log("Saving block:", newBlock);
-    onSave(newBlock);
-    if (!block) {
-      resetFields();
+  const saveBlock = async () => {
+    // Validate form fields
+    if ((type === "text" && !content) || (type === "image" && !src && !file)) {
+      setErrorMessage("Please fill in all required fields.");
+      return;
     }
-  };
 
-  const resetFields = () => {
-    setType("text");
-    setContent("");
-    setTag("p");
-    setSrc("");
-    setWidth("100px");
-    setHeight("100px");
-    setImageSource("url");
-    setFile(null);
-  };
+    // Reset error message
+    setErrorMessage("");
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setFile(file);
+    let updatedSrc = src;
     if (file) {
       const formData = new FormData();
       formData.append("image", file);
@@ -74,13 +55,28 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
             },
           }
         );
-        console.log("File uploaded, response:", response.data);
-        setSrc(response.data.url);
-        console.log("Image source set to:", response.data.url);
+        updatedSrc = response.data.url;
+        setSrc(updatedSrc); // Update the state
       } catch (error) {
-        console.error("Error uploading the file", error);
+        console.error("Error uploading the file:", error);
+        return;
       }
     }
+    const newBlock = {
+      id: block?.id || Date.now().toString(),
+      type,
+      content,
+      tag,
+      src: updatedSrc,
+      width,
+      height,
+    };
+    onSave(newBlock);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0] || null;
+    setFile(selectedFile);
   };
 
   return (
@@ -88,7 +84,7 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
       <select value={type} onChange={(e) => setType(e.target.value)}>
         <option value="text">Text</option>
         <option value="image">Image</option>
-        <option value="markdown">Markdown</option>
+        <option value="markdown">Markdown</option>{" "}
       </select>
       {type === "text" && (
         <div>
@@ -146,6 +142,7 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
           />
         </div>
       )}
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       <button onClick={saveBlock}>Save</button>
     </div>
   );

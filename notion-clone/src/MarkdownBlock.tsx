@@ -1,5 +1,6 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import { FaEdit, FaTrash } from "react-icons/fa"; // Import icons
 
 const MarkdownBlock: React.FC<{
   block: any;
@@ -7,10 +8,20 @@ const MarkdownBlock: React.FC<{
   onDelete: () => void;
 }> = ({ block, onEdit, onDelete }) => {
   return (
-    <div>
-      <ReactMarkdown>{block.content}</ReactMarkdown>
-      <button onClick={onEdit}>Edit</button>
-      <button onClick={onDelete}>Delete</button>
+    <div className="block-container">
+      <div className="block">
+        <ReactMarkdown>{block.content}</ReactMarkdown>
+      </div>
+      <div className="block-buttons-container">
+        <div className="block-buttons">
+          <button onClick={onEdit} title="Edit">
+            <FaEdit />
+          </button>
+          <button onClick={onDelete} title="Delete">
+            <FaTrash />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

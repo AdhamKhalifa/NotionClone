@@ -4,18 +4,23 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const multer = require("multer");
+const dotenv = require("dotenv");
+const OpenAI = require("openai");
 const app = express();
 const port = 5000;
 
+// Load environment variables from .env file
+dotenv.config();
+
 app.use(bodyParser.json());
 app.use(cors());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 const dataFilePath = "./data.json";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join(__dirname, "uploads");
+    const uploadPath = path.join(__dirname, "public/uploads");
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
@@ -105,7 +110,32 @@ app.post("/upload", upload.single("image"), (req, res) => {
     return;
   }
   console.log("File uploaded:", req.file);
-  res.send({ url: `http://localhost:${port}/uploads/${req.file.filename}` });
+  const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+  res.send({ url: fileUrl });
+});
+
+app.post("/summarize", async (req, res) => {
+  try {
+    const openai = new OpenAI(process.env.OPENAI_API_KEY);
+    const completion = await openai.chat.completions.create({
+      messages: [
+        { role: "system", content: "You are a helpful assistant." },
+        {
+          role: "user",
+          content: `Summarize the following content: ${JSON.stringify(
+            req.body
+          )}`,
+        },
+      ],
+      model: "gpt-3.5-turbo",
+    });
+
+    const summary = completion.choices[0].message.content;
+    res.send({ summary });
+  } catch (error) {
+    console.error("Error summarizing content:", error);
+    res.status(500).send("Failed to summarize content.");
+  }
 });
 
 app.listen(port, () => {
