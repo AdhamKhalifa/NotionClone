@@ -1,35 +1,37 @@
 import React, { useState, useEffect } from "react";
 
+// Interface for Modal component props
 interface ModalProps {
   show: boolean;
   onClose: () => void;
   text: string;
 }
 
+// Modal component with props: show, onClose, text
 const Modal: React.FC<ModalProps> = ({ show, onClose, text }) => {
-  const [displayText, setDisplayText] = useState("");
+  const [displayText, setDisplayText] = useState(""); // State for managing the displayed text
 
   useEffect(() => {
     if (show) {
-      let words = text.split(" ");
+      let words = text.split(" "); // Split the input text into words
       let index = 0;
-      setDisplayText("");
+      setDisplayText(""); // Reset displayed text
 
       const interval = setInterval(() => {
         if (index < words.length) {
-          setDisplayText((prev) => prev + words[index] + " ");
+          setDisplayText((prev) => prev + words[index] + " "); // Append words one by one
           index++;
         } else {
-          clearInterval(interval);
+          clearInterval(interval); // Clear interval when all words are displayed
         }
       }, 100); // Adjust typing speed here
 
-      return () => clearInterval(interval);
+      return () => clearInterval(interval); // Cleanup interval on component unmount
     }
-  }, [show, text]);
+  }, [show, text]); // Re-run effect when show or text changes
 
   if (!show) {
-    return null;
+    return null; // Don't render modal if show is false
   }
 
   return (

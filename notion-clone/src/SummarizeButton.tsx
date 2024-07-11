@@ -3,10 +3,14 @@ import { FaStar } from "react-icons/fa";
 import axios from "axios";
 import Modal from "./Modal";
 
+// SummarizeButton component definition
 const SummarizeButton: React.FC = () => {
+  // State to control the visibility of the modal
   const [showModal, setShowModal] = useState(false);
+  // State to hold the summary text
   const [summaryText, setSummaryText] = useState("");
 
+  // Function to handle the summarize action
   const handleSummarize = async () => {
     try {
       // Fetch data from data.json
@@ -19,10 +23,14 @@ const SummarizeButton: React.FC = () => {
         data
       );
 
+      // Extract the summary from the response
       const summary = summaryResponse.data.summary;
+      // Update the state with the summary text
       setSummaryText(summary);
+      // Show the modal with the summary text
       setShowModal(true);
     } catch (error) {
+      // Handle errors during the summarize process
       console.error("Error summarizing content:", error);
       alert("Failed to summarize content.");
     }

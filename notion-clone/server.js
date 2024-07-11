@@ -12,27 +12,30 @@ const port = 5000;
 // Load environment variables from .env file
 dotenv.config();
 
-app.use(bodyParser.json());
-app.use(cors());
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+// Middleware setup
+app.use(bodyParser.json()); // Parse JSON bodies
+app.use(cors()); // Enable CORS
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads"))); // Serve static files from the uploads directory
 
-const dataFilePath = "./data.json";
+const dataFilePath = "./data.json"; // Path to the data file
 
+// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(__dirname, "public/uploads");
     if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
+      fs.mkdirSync(uploadPath, { recursive: true }); // Create upload directory if it doesn't exist
     }
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, Date.now() + "-" + file.originalname); // Generate a unique filename
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }); // Initialize multer with the configured storage
 
+// Route to get all blocks
 app.get("/blocks", (req, res) => {
   fs.readFile(dataFilePath, (err, data) => {
     if (err) {
@@ -43,6 +46,7 @@ app.get("/blocks", (req, res) => {
   });
 });
 
+// Route to create a new block
 app.post("/blocks", (req, res) => {
   const newBlock = req.body;
   console.log("Creating new block:", newBlock);
@@ -63,6 +67,7 @@ app.post("/blocks", (req, res) => {
   });
 });
 
+// Route to update a block by ID
 app.put("/blocks/:id", (req, res) => {
   const { id } = req.params;
   const updatedBlock = req.body;
@@ -84,6 +89,7 @@ app.put("/blocks/:id", (req, res) => {
   });
 });
 
+// Route to delete a block by ID
 app.delete("/blocks/:id", (req, res) => {
   const { id } = req.params;
   console.log("Deleting block:", id);
@@ -104,6 +110,7 @@ app.delete("/blocks/:id", (req, res) => {
   });
 });
 
+// Route to handle file uploads
 app.post("/upload", upload.single("image"), (req, res) => {
   if (!req.file) {
     res.status(400).send("No file uploaded.");
@@ -114,6 +121,7 @@ app.post("/upload", upload.single("image"), (req, res) => {
   res.send({ url: fileUrl });
 });
 
+// Route to summarize content using OpenAI
 app.post("/summarize", async (req, res) => {
   try {
     const openai = new OpenAI(process.env.OPENAI_API_KEY);

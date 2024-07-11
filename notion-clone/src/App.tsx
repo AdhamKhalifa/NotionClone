@@ -3,7 +3,7 @@ import axios from "axios";
 import Block from "./Block";
 import BlockEditor from "./BlockEditor";
 import MarkdownBlock from "./MarkdownBlock";
-import SummarizeButton from "./SummarizeButton"; // Import SummarizeButton
+import SummarizeButton from "./SummarizeButton";
 import "./styles.css";
 
 const App: React.FC = () => {
@@ -72,7 +72,7 @@ const App: React.FC = () => {
       {editingBlock && (
         <BlockEditor block={editingBlock} onSave={updateBlock} />
       )}
-      <SummarizeButton /> {/* Add SummarizeButton component */}
+      <SummarizeButton />
     </div>
   );
 };

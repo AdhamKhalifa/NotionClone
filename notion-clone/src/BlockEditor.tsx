@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+// BlockEditor component with props: block and onSave
+
 const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
   block,
   onSave,
 }) => {
+  // State variables to manage the form fields
   const [type, setType] = useState(block?.type || "text");
   const [content, setContent] = useState(block?.content || "");
   const [tag, setTag] = useState(block?.tag || "p");
   const [src, setSrc] = useState(block?.src || "");
-  const [width, setWidth] = useState(block?.width || "100px");
-  const [height, setHeight] = useState(block?.height || "100px");
+  const [width, setWidth] = useState(block?.width || "");
+  const [height, setHeight] = useState(block?.height || "");
   const [imageSource, setImageSource] = useState("url");
   const [file, setFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // useEffect to update state when block prop changes
   useEffect(() => {
     if (block) {
       setType(block.type);
@@ -31,6 +35,7 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
     }
   }, [block]);
 
+  // Function to handle saving the block
   const saveBlock = async () => {
     // Validate form fields
     if ((type === "text" && !content) || (type === "image" && !src && !file)) {
@@ -42,6 +47,7 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
     setErrorMessage("");
 
     let updatedSrc = src;
+    // Upload image file if selected
     if (file) {
       const formData = new FormData();
       formData.append("image", file);
@@ -62,8 +68,9 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
         return;
       }
     }
+    // Create a new block object with the current state
     const newBlock = {
-      id: block?.id || Date.now().toString(),
+      id: block?.id || Date.now().toString(), // Generate ID if not present
       type,
       content,
       tag,
@@ -71,12 +78,12 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
       width,
       height,
     };
-    onSave(newBlock);
+    onSave(newBlock); // Call the onSave prop with the new block
   };
-
+  // Function to handle file input change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
-    setFile(selectedFile);
+    setFile(selectedFile); // Update file state
   };
 
   return (
@@ -94,8 +101,7 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
             <option value="h3">H3</option>
             <option value="p">Paragraph</option>
           </select>
-          <input
-            type="text"
+          <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -122,13 +128,13 @@ const BlockEditor: React.FC<{ block?: any; onSave: (block: any) => void }> = ({
           )}
           <input
             type="text"
-            placeholder="Width"
+            placeholder="Width (px)"
             value={width}
             onChange={(e) => setWidth(e.target.value)}
           />
           <input
             type="text"
-            placeholder="Height"
+            placeholder="Height (px)"
             value={height}
             onChange={(e) => setHeight(e.target.value)}
           />

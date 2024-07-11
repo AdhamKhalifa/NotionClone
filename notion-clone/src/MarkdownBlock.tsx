@@ -2,6 +2,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import { FaEdit, FaTrash } from "react-icons/fa"; // Import icons
 
+// MarkdownBlock component with props: block, onEdit, onDelete
 const MarkdownBlock: React.FC<{
   block: any;
   onEdit: () => void;
